@@ -3,23 +3,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Load BehaviorSpace data
-data = pd.read_csv('results/runs_results_processed.csv')
+# Load the preprocessed CSV data
+data = pd.read_csv('/Users/joseph/Library/CloudStorage/OneDrive-OldDominionUniversity/MS Modeling and Simulation/2024-30/697 INDEPENDENT STUDY ABM/results/runs_results_processed.csv')
+
+# Ensure correct data types
+data['prestige'] = data['prestige'].astype(float)
+data['threshold'] = data['threshold'].astype(float)
+data['output'] = data['output'].astype(float)
 
 # Check data columns
 print("Data Columns:")
 print(data.columns)
 
-# Compute average final proportion of grammar 1 users for each parameter combination
-grouped_data = data.groupby(['prestige', 'threshold-val']).agg({
-    'final-grammar1-proportion': ['mean', 'std'],
-    'ticks': ['mean', 'std']
+# Keep only the final step for each run
+# First, find the maximum step number for each run
+max_steps = data.groupby(['run_number', 'prestige', 'threshold'])['step'].max().reset_index()
+
+# Merge with the original data to get the rows corresponding to the final step
+final_steps = pd.merge(data, max_steps, on=['run_number', 'prestige', 'threshold', 'step'])
+
+# Now, we have the data for the final step of each run
+# Group by prestige and threshold to compute mean and std
+grouped_data = final_steps.groupby(['prestige', 'threshold']).agg({
+    'output': ['mean', 'std']
 }).reset_index()
 
 # Flatten MultiIndex columns
-grouped_data.columns = ['prestige', 'threshold-val',
-                        'mean_final_prop', 'std_final_prop',
-                        'mean_ticks', 'std_ticks']
+grouped_data.columns = ['prestige', 'threshold', 'mean_final_output', 'std_final_output']
 
 # Save summarized data to CSV
 grouped_data.to_csv('summarized_results.csv', index=False)
@@ -29,7 +39,7 @@ print("\nSummarized Data:")
 print(grouped_data)
 
 # Correlation Analysis
-corr_matrix = data[['prestige', 'threshold-val', 'final-grammar1-proportion', 'ticks']].corr()
+corr_matrix = final_steps[['prestige', 'threshold', 'output']].corr()
 
 print("\nCorrelation Matrix:")
 print(corr_matrix)
@@ -40,20 +50,20 @@ sns.heatmap(corr_matrix, annot=True, cmap='Blues')
 plt.title('Correlation Matrix Heatmap')
 plt.show()
 
-# Scatter Plot: Prestige vs Final Proportion
+# Scatter Plot: Prestige vs Final Output
 plt.figure(figsize=(8, 6))
-sns.scatterplot(data=data, x='prestige', y='final-grammar1-proportion', hue='threshold-val', palette='viridis')
-plt.title('Prestige vs Final Proportion of Grammar 1')
-plt.xlabel('Prestige of Grammar 1')
-plt.ylabel('Final Proportion of Grammar 1 Users')
-plt.legend(title='Threshold Value')
+sns.scatterplot(data=final_steps, x='prestige', y='output', hue='threshold', palette='viridis')
+plt.title('Prestige vs Final Output')
+plt.xlabel('Prestige')
+plt.ylabel('Final Output')
+plt.legend(title='Threshold')
 plt.show()
 
-# Scatter Plot: Threshold Value vs Final Proportion
+# Scatter Plot: Threshold vs Final Output
 plt.figure(figsize=(8, 6))
-sns.scatterplot(data=data, x='threshold-val', y='final-grammar1-proportion', hue='prestige', palette='plasma')
-plt.title('Threshold Value vs Final Proportion of Grammar 1')
-plt.xlabel('Threshold Value')
-plt.ylabel('Final Proportion of Grammar 1 Users')
+sns.scatterplot(data=final_steps, x='threshold', y='output', hue='prestige', palette='plasma')
+plt.title('Threshold vs Final Output')
+plt.xlabel('Threshold')
+plt.ylabel('Final Output')
 plt.legend(title='Prestige')
 plt.show()

@@ -393,7 +393,7 @@ num-nodes
 num-nodes
 2
 100
-100.0
+99.0
 1
 1
 NIL
@@ -408,7 +408,7 @@ percent-grammar-1
 percent-grammar-1
 0
 100
-60.0
+49.0
 1
 1
 %
@@ -422,7 +422,7 @@ CHOOSER
 update-algorithm
 update-algorithm
 "individual" "threshold" "reward"
-0
+1
 
 SLIDER
 225
@@ -465,7 +465,7 @@ threshold-val
 threshold-val
 0
 1
-0.3
+0.5
 0.05
 1
 NIL
@@ -478,7 +478,7 @@ SWITCH
 278
 sink-state-1?
 sink-state-1?
-0
+1
 1
 -1000
 
@@ -489,7 +489,7 @@ SWITCH
 317
 logistic?
 logistic?
-0
+1
 1
 -1000
 
@@ -529,7 +529,7 @@ prestige
 prestige
 0
 1
-1.0
+0.1
 0.05
 1
 NIL
